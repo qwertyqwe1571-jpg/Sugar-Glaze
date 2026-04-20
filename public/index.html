@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sugar & Glaze | Магазин солодощів</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ========== ШАПКА САЙТУ ========== -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <!-- Кольорова SVG-іконка торта через icons.js (вставляється скриптом нижче) -->
+        <span class="logo-icon-wrap" id="logoIconWrap"></span>
+        <span class="logo-text">Sugar <span class="logo-amp">&</span> Glaze</span>
+      </div>
+
+      <!-- Кошик: SVG замість 🛒 -->
+      <button class="cart-btn" id="cartToggle">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8"  cy="21" r="1"/>
+          <circle cx="19" cy="21" r="1"/>
+          <path d="M2 2h2.5l2.25 11.4a2 2 0 0 0 2 1.6H18a2 2 0 0 0 2-1.56L21.5 7H5.5"/>
+        </svg>
+        <span id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========== HERO ========== -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <h1 class="hero-title">Солодощі,<br/>що роблять день особливим</h1>
+        <p class="hero-subtitle">Ручна робота · Свіжі інгредієнти · Доставка по місту</p>
+        <a href="#catalog" class="hero-btn">
+          Переглянути каталог
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </a>
+      </div>
+      <!-- Детальна ілюстрація торта (вставляється через illustrations.js) -->
+      <div class="hero-illustration" id="heroIllustration"></div>
+    </div>
+  </section>
+
+  <!-- ========== КАТАЛОГ ========== -->
+  <section class="catalog-section" id="catalog">
+    <h2 class="section-title">Наші солодощі</h2>
+    <div class="product-grid" id="productGrid">
+      <p class="loading-text">
+        <!-- SVG-зірочка замість 🍬 -->
+        <svg class="icon loading-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>
+          <path d="M5.64 5.64 7.76 7.76M16.24 16.24l2.12 2.12M5.64 18.36l2.12-2.12M16.24 7.76l2.12-2.12"/>
+        </svg>
+        Завантажуємо смаколики...
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== ПАНЕЛЬ КОШИКА ========== -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+
+  <aside class="cart-panel" id="cartPanel">
+    <div class="cart-header">
+      <h3>Ваш кошик</h3>
+      <!-- SVG замість ✕ -->
+      <button class="cart-close" id="cartClose" aria-label="Закрити">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6"  x2="6"  y2="18"/>
+          <line x1="6"  y1="6"  x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+      <p class="cart-empty">
+        <!-- SVG кошика замість 🛒 -->
+        <svg class="icon cart-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8"  cy="21" r="1"/>
+          <circle cx="19" cy="21" r="1"/>
+          <path d="M2 2h2.5l2.25 11.4a2 2 0 0 0 2 1.6H18a2 2 0 0 0 2-1.56L21.5 7H5.5"/>
+        </svg>
+        Кошик порожній
+      </p>
+    </div>
+
+    <div class="cart-footer">
+      <div class="cart-total">
+        Сума: <strong id="cartTotal">0</strong> грн
+      </div>
+
+      <form id="orderForm" class="order-form">
+        <!-- КРОК 1: Контактні дані + вибір каналу -->
+        <div id="step1">
+          <input type="text" id="custName"    placeholder="Ваше ім'я"       required />
+          <input type="tel"  id="custPhone"   placeholder="+380XXXXXXXXX"   required />
+          <input type="text" id="custAddress" placeholder="Адреса доставки" required />
+
+          <div class="verify-channel-label">Підтвердити замовлення через:</div>
+          <div class="verify-channels">
+            <label class="channel-option">
+              <input type="radio" name="channel" value="telegram" checked />
+              <span class="channel-btn">
+                <!-- SVG Telegram замість ✈️ -->
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2 2 9.5l7 2.5"/>
+                  <path d="m9 12 3 9 3-5.5 6-3.5"/>
+                  <path d="M9 12 21.5 2"/>
+                </svg>
+                Telegram
+              </span>
+            </label>
+            <label class="channel-option">
+              <input type="radio" name="channel" value="email" />
+              <span class="channel-btn">
+                <!-- SVG конверт замість 📧 -->
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/>
+                  <path d="m2 7 10 7 10-7"/>
+                </svg>
+                Email
+              </span>
+            </label>
+          </div>
+
+          <input type="email" id="custEmail" placeholder="Ваш email" style="display:none" />
+
+          <button type="button" class="pay-btn" id="sendOtpBtn">
+            Отримати код
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- КРОК 2: Введення коду -->
+        <div id="step2" style="display:none">
+          <div class="otp-info" id="otpInfo"></div>
+          <input type="text" id="otpCode" placeholder="Введіть 6-значний код"
+                 maxlength="6" inputmode="numeric" autocomplete="one-time-code" />
+          <button type="submit" class="pay-btn">Підтвердити замовлення</button>
+          <button type="button" class="resend-btn" id="resendBtn">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5"  y2="12"/>
+              <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Назад / Відправити знову
+          </button>
+        </div>
+      </form>
+    </div>
+  </aside>
+
+  <!-- ========== ПІДВАЛ ========== -->
+  <footer class="footer">
+    <p>© 2026 Sugar & Glaze. Всі права захищено.</p>
+  </footer>
+
+  <!-- Порядок: icons.js → illustrations.js → modal.js → script.js -->
+  <script src="icons.js"></script>
+  <script src="illustrations.js"></script>
+  <script src="modal.js"></script>
+  <script src="script.js"></script>
+  <script>
+    // Вставляємо кольоровий логотип-торт
+    const logoWrap = document.getElementById('logoIconWrap');
+    if (logoWrap) logoWrap.innerHTML = icon('cake', 'logo-icon');
+    // Вставляємо hero-ілюстрацію
+    const heroEl = document.getElementById('heroIllustration');
+    if (heroEl) heroEl.innerHTML = illustration('cakeHero');
+  </script>
+
+</body>
+</html>
