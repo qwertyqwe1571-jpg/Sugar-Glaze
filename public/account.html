@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Кабінет | Sugar & Glaze</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="account.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <a class="back-link" href="/">← Повернутися до магазину</a>
+      <h1>Мій кабінет</h1>
+    </section>
+
+    <div class="content-column">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Профіль</h2>
+        </div>
+
+        <div class="message" id="accountMessage"></div>
+
+        <div class="summary">
+          <h3 id="accountName">Завантаження...</h3>
+          <div class="summary-grid">
+            <div><strong>Email:</strong> <span id="accountEmail"></span></div>
+            <div><strong>Роль:</strong> <span id="accountRole"></span></div>
+          </div>
+        </div>
+
+        <form id="profileForm">
+          <div class="field">
+            <label for="profileName">Ім'я</label>
+            <input id="profileName" name="name" type="text" required />
+          </div>
+
+          <div class="field">
+            <label for="profilePhone">Телефон</label>
+            <input id="profilePhone" name="phone" type="tel" placeholder="+380XXXXXXXXX" />
+          </div>
+
+          <div class="field">
+            <label for="profileAddress">Адреса доставки</label>
+            <textarea id="profileAddress" name="address" placeholder="Вкажіть адресу"></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn" id="profileSubmit">Оновити профіль</button>
+            <a href="/" class="link-btn">До магазину</a>
+            <a href="/admin.html" class="link-btn" id="adminAction" style="display:none">Адмін-панель</a>
+            <button type="button" class="link-btn" id="logoutBtn">Вийти</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel orders-panel">
+        <div class="orders-head">
+          <div class="panel-head">
+            <h2>Мої замовлення</h2>
+          </div>
+          <div class="orders-count" id="ordersCount">0 замовлень</div>
+        </div>
+
+        <div class="orders-list" id="ordersList">
+          <div class="empty-state">Завантаження замовлень...</div>
+        </div>
+
+        <div class="pagination">
+          <div class="pagination-info" id="ordersPageInfo">Сторінка 1 з 1</div>
+          <div class="pagination-actions">
+            <button type="button" class="link-btn" id="ordersPrevBtn">Назад</button>
+            <button type="button" class="link-btn" id="ordersNextBtn">Далі</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="account.js"></script>
+</body>
+</html>

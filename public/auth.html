@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Вхід і Реєстрація | Sugar & Glaze</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body>
+  <main class="auth-shell">
+    <section class="auth-hero">
+      <div class="hero-top">
+        <a class="back-link" href="/">← Повернутися до магазину</a>
+        <div class="eyebrow" id="heroEyebrow">Авторизація клієнта</div>
+        <h1 id="heroTitle">Вхід в Sugar &amp; Glaze</h1>
+        <p id="heroText"></p>
+      </div>
+    </section>
+
+    <section class="auth-card">
+      <div class="card-header">
+        <h2 id="authTitle">Вхід і реєстрація</h2>
+        <p id="authSubtitle"></p>
+      </div>
+
+      <div class="tabs" id="authTabs">
+        <button type="button" class="tab-btn active" data-tab="login">Вхід</button>
+        <button type="button" class="tab-btn" data-tab="register">Реєстрація</button>
+      </div>
+
+      <div class="admin-lock" id="adminLock"></div>
+      <div class="message" id="authMessage"></div>
+
+      <div id="authForms">
+        <div class="form-panel active" id="loginPanel">
+          <form id="loginForm">
+            <div class="field">
+              <label for="loginEmail">Email</label>
+              <input id="loginEmail" name="email" type="email" placeholder="name@example.com" required />
+            </div>
+            <div class="field">
+              <label for="loginPassword">Пароль</label>
+              <input id="loginPassword" name="password" type="password" placeholder="Ваш пароль" required />
+            </div>
+            <button type="submit" class="submit-btn" id="loginSubmit">Увійти</button>
+          </form>
+        </div>
+
+        <div class="form-panel" id="registerPanel">
+          <form id="registerForm">
+            <div class="field">
+              <label for="registerName">Ім'я та прізвище</label>
+              <input id="registerName" name="name" type="text" placeholder="Наприклад: Анна Коваль" required />
+            </div>
+            <div class="field">
+              <label for="registerEmail">Email</label>
+              <input id="registerEmail" name="email" type="email" placeholder="name@example.com" required />
+            </div>
+            <div class="field">
+              <label for="registerPhone">Телефон</label>
+              <input id="registerPhone" name="phone" type="tel" placeholder="+380XXXXXXXXX" />
+            </div>
+            <div class="field">
+              <label for="registerAddress">Адреса</label>
+              <textarea id="registerAddress" name="address" placeholder="Вулиця, будинок, квартира"></textarea>
+            </div>
+            <div class="field">
+              <label for="registerPassword">Пароль</label>
+              <input id="registerPassword" name="password" type="password" placeholder="Мінімум 8 символів" required />
+            </div>
+            <button type="submit" class="submit-btn" id="registerSubmit">Створити акаунт</button>
+          </form>
+        </div>
+      </div>
+
+      <section class="account-panel" id="accountPanel">
+        <div class="account-summary">
+          <h3 id="accountName">Ваш акаунт</h3>
+          <p id="accountIntro"></p>
+          <div class="summary-grid">
+            <div><strong>Email:</strong> <span id="accountEmail"></span></div>
+            <div><strong>Роль:</strong> <span id="accountRole"></span></div>
+          </div>
+        </div>
+
+        <form id="profileForm">
+          <div class="field">
+            <label for="profileName">Ім'я</label>
+            <input id="profileName" name="name" type="text" required />
+          </div>
+          <div class="field">
+            <label for="profilePhone">Телефон</label>
+            <input id="profilePhone" name="phone" type="tel" placeholder="+380XXXXXXXXX" />
+          </div>
+          <div class="field">
+            <label for="profileAddress">Адреса доставки</label>
+            <textarea id="profileAddress" name="address" placeholder="Вкажіть зручну адресу"></textarea>
+          </div>
+          <button type="submit" class="submit-btn" id="profileSubmit">Оновити профіль</button>
+        </form>
+
+        <div class="account-actions">
+          <a href="/" class="secondary-btn">Повернутися до магазину</a>
+          <a href="/admin.html" class="secondary-btn" id="adminAction" style="display:none">Перейти в адмінку</a>
+          <button type="button" class="secondary-btn" id="logoutBtn">Вийти з акаунта</button>
+        </div>
+        <p class="account-note"></p>
+      </section>
+    </section>
+  </main>
+
+  <script src="auth.js"></script>
+</body>
+</html>

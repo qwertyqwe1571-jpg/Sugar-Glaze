@@ -4,534 +4,175 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Адмін-панель | Sugar & Glaze</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --gold: #c9a84c;
-      --gold-light: #e8d5a0;
-      --cream: #fdf8f3;
-      --chocolate: #3d2b1f;
-      --red: #e74c3c;
-      --green: #27ae60;
-      --shadow: 0 4px 20px rgba(61,43,31,0.08);
-      --radius: 12px;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--cream);
-      color: var(--chocolate);
-    }
-
-    /* --- Шапка --- */
-    header {
-      background: var(--chocolate);
-      color: white;
-      padding: 16px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    header h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.4rem;
-    }
-    header a {
-      color: var(--gold-light);
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-    header a:hover { color: white; }
-
-    /* --- Основний контейнер --- */
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 32px 24px;
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      gap: 32px;
-      align-items: start;
-    }
-
-    /* --- Картки секцій --- */
-    .card {
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 28px;
-    }
-
-    .card h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid var(--gold-light);
-    }
-
-    /* --- Форма додавання товару --- */
-    .form-group { margin-bottom: 16px; }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: #6b5c52;
-      margin-bottom: 6px;
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid var(--gold-light);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus,
-    .form-group textarea:focus { border-color: var(--gold); }
-
-    .form-group textarea { height: 80px; resize: vertical; }
-
-    /* --- Поле завантаження фото --- */
-    .upload-area {
-      border: 2px dashed var(--gold-light);
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-    }
-    .upload-area:hover,
-    .upload-area.drag-over { border-color: var(--gold); background: #fdf5e4; }
-
-    .upload-area input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
-
-    .upload-icon { font-size: 2rem; margin-bottom: 8px; }
-    .upload-text { color: #8a7060; font-size: 0.9rem; }
-
-    /* Прев'ю завантаженого фото */
-    #imagePreview {
-      width: 100%;
-      max-height: 180px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-top: 12px;
-      display: none;
-    }
-
-    /* Прогрес-бар завантаження */
-    .upload-progress {
-      display: none;
-      margin-top: 10px;
-      background: #f0e8de;
-      border-radius: 4px;
-      height: 6px;
-      overflow: hidden;
-    }
-    .upload-progress-bar {
-      height: 100%;
-      background: var(--gold);
-      width: 0%;
-      transition: width 0.3s;
-      border-radius: 4px;
-    }
-
-    .upload-status { font-size: 0.85rem; margin-top: 6px; color: #8a7060; }
-
-    /* --- Кнопки --- */
-    .btn {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: all 0.2s;
-      font-family: 'Inter', sans-serif;
-    }
-    .btn-gold  { background: var(--gold); color: white; width: 100%; }
-    .btn-gold:hover  { background: var(--chocolate); }
-    .btn-gold:disabled { background: #ccc; cursor: not-allowed; }
-
-    .btn-red   { background: var(--red); color: white; padding: 6px 14px; font-size: 0.85rem; }
-    .btn-red:hover { background: #c0392b; }
-
-    /* --- Список товарів --- */
-    .products-list { display: flex; flex-direction: column; gap: 12px; }
-
-    .product-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px;
-      border: 1px solid #f0e8de;
-      border-radius: 8px;
-      transition: background 0.2s;
-    }
-    .product-row:hover { background: #fdf8f3; }
-
-    .product-row img {
-      width: 64px;
-      height: 64px;
-      object-fit: cover;
-      border-radius: 6px;
-      flex-shrink: 0;
-      background: var(--gold-light);
-    }
-
-    .product-info { flex: 1; }
-    .product-name { font-weight: 500; font-size: 0.95rem; }
-    .product-price { color: var(--gold); font-size: 0.9rem; margin-top: 2px; }
-    .product-desc  { color: #8a7060; font-size: 0.82rem; margin-top: 2px; }
-
-    .products-empty {
-      text-align: center;
-      color: #8a7060;
-      padding: 32px;
-      font-size: 0.95rem;
-    }
-
-    /* --- Адаптивність --- */
-    @media (max-width: 768px) {
-      .container { grid-template-columns: 1fr; }
-    }
-  </style>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-block">
+        <h1>Sugar &amp; Glaze Admin</h1>
+      </div>
 
-  <header>
-    <h1>
-      <!-- SVG шестерня замість 🛠️ -->
-      <svg class="icon" style="width:22px;height:22px;vertical-align:middle;margin-right:8px;color:var(--gold-light)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
-      Sugar & Glaze — Адмін-панель
-    </h1>
-    <a href="/">
-      <!-- SVG стрілка замість ← -->
-      <svg class="icon" style="width:14px;height:14px;vertical-align:middle;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="19" y1="12" x2="5" y2="12"/>
-        <polyline points="12 19 5 12 12 5"/>
-      </svg>
-      Повернутися до сайту
-    </a>
+      <div class="topbar-actions">
+        <div class="pill" id="adminIdentity">Завантаження сесії...</div>
+        <a href="/" class="top-link">До магазину</a>
+        <a href="/account.html" class="top-link">Мій кабінет</a>
+        <button type="button" class="top-btn" id="logoutBtn">Вийти</button>
+      </div>
+    </div>
   </header>
 
-  <div class="container">
+  <main class="dashboard">
+    <section class="card">
+      <div class="card-head">
+        <h2 id="productFormTitle">Додати товар</h2>
+      </div>
 
-    <!-- ========== ФОРМА ДОДАВАННЯ ТОВАРУ ========== -->
-    <div class="card">
-      <h2>Додати товар</h2>
+      <div class="edit-banner" id="editBanner"></div>
+      <div class="form-message" id="productFormMessage"></div>
 
-      <form id="addProductForm">
-
-        <div class="form-group">
-          <label for="productName">Назва товару *</label>
-          <input type="text" id="productName" placeholder="Наприклад: Шоколадний торт" required />
+      <form id="addProductForm" class="stack" novalidate>
+        <div class="field">
+          <label for="productName">Назва товару</label>
+          <input id="productName" type="text" placeholder="Назва товару" />
         </div>
 
-        <div class="form-group">
-          <label for="productPrice">Ціна (грн) *</label>
-          <input type="number" id="productPrice" placeholder="450" min="1" step="0.01" required />
+        <div class="field">
+          <label for="productPrice">Ціна, грн</label>
+          <input id="productPrice" type="number" min="1" step="0.01" placeholder="450" />
         </div>
 
-        <div class="form-group">
+        <div class="field">
           <label for="productDesc">Опис</label>
-          <textarea id="productDesc" placeholder="Склад, смак, особливості..."></textarea>
+          <textarea id="productDesc" placeholder="Опис"></textarea>
         </div>
 
-        <!-- Поле завантаження фото -->
-        <div class="form-group">
+        <div class="field">
           <label>Фото товару</label>
           <div class="upload-area" id="uploadArea">
             <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp,image/gif" />
-            <!-- SVG камера замість 📸 -->
-            <div class="upload-icon">
-              <svg class="icon" style="width:36px;height:36px;color:#b89060" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
-              </svg>
-            </div>
-            <div class="upload-text">Натисніть або перетягніть фото сюди<br/><small>JPG, PNG, WebP до 5 МБ</small></div>
+            <div class="upload-copy">Обрати фото</div>
           </div>
-
-          <!-- Прев'ю після вибору файлу -->
-          <img id="imagePreview" alt="Прев'ю" />
-
-          <!-- Прогрес-бар (показується під час завантаження) -->
+          <img id="imagePreview" alt="Прев'ю товару" />
           <div class="upload-progress" id="uploadProgress">
             <div class="upload-progress-bar" id="uploadProgressBar"></div>
           </div>
           <div class="upload-status" id="uploadStatus"></div>
+          <div class="image-actions">
+            <button type="button" class="ghost-btn" id="clearImageBtn" disabled>Очистити фото</button>
+          </div>
         </div>
 
-        <button type="submit" class="btn btn-gold" id="submitBtn">
-          Додати товар
-        </button>
-
-        <!-- Повідомлення відображаються через toast() -->
+        <div class="form-actions">
+          <button type="submit" class="primary-btn" id="submitBtn">Зберегти товар</button>
+          <button type="button" class="ghost-btn" id="cancelEditBtn" style="display:none">Скасувати редагування</button>
+        </div>
       </form>
-    </div>
+    </section>
 
-    <!-- ========== СПИСОК ТОВАРІВ ========== -->
-    <div class="card">
-      <h2>Товари в каталозі</h2>
-      <div class="products-list" id="productsList">
-        <p class="products-empty">Завантаження...</p>
-      </div>
-    </div>
+    <section class="main-column">
+      <section class="card section-card">
+        <div class="card-head">
+          <h2>Каталог</h2>
+        </div>
 
-  </div>
-
-  <script>
-    // =============================================
-    // Стан: URL завантаженого фото зберігаємо тут
-    // =============================================
-    let uploadedImageUrl = '';
-
-    // =============================================
-    // КРОК 1: Вибір і завантаження фото
-    // =============================================
-    document.getElementById('imageInput').addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      // Показуємо прев'ю одразу (до завантаження на сервер)
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const preview = document.getElementById('imagePreview');
-        preview.src = ev.target.result;
-        preview.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-
-      // Завантажуємо на сервер
-      await uploadImage(file);
-    });
-
-    // Drag-and-drop
-    const uploadArea = document.getElementById('uploadArea');
-    uploadArea.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadArea.classList.add('drag-over');
-    });
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('drag-over');
-    });
-    uploadArea.addEventListener('drop', async (e) => {
-      e.preventDefault();
-      uploadArea.classList.remove('drag-over');
-      const file = e.dataTransfer.files[0];
-      if (!file) return;
-
-      // Показуємо прев'ю
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const preview = document.getElementById('imagePreview');
-        preview.src = ev.target.result;
-        preview.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-
-      await uploadImage(file);
-    });
-
-    // Функція завантаження фото на сервер
-    async function uploadImage(file) {
-      const progress    = document.getElementById('uploadProgress');
-      const progressBar = document.getElementById('uploadProgressBar');
-      const status      = document.getElementById('uploadStatus');
-
-      // Показуємо прогрес-бар
-      progress.style.display = 'block';
-      progressBar.style.width = '30%';
-      status.textContent = 'Завантаження фото...';
-
-      try {
-        // Формуємо multipart/form-data запит
-        const formData = new FormData();
-        formData.append('image', file); // 'image' — назва поля, яку очікує multer
-
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-          // НЕ встановлюємо Content-Type — браузер сам додає boundary для FormData
-        });
-
-        progressBar.style.width = '100%';
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Помилка завантаження');
-        }
-
-        const data = await res.json();
-        uploadedImageUrl = data.imageUrl; // Зберігаємо URL для форми
-        status.innerHTML = icon('checkCircle') + ' Фото завантажено!';
-        status.style.color = '#27ae60';
-
-      } catch (err) {
-        status.innerHTML = icon('xCircle') + ' ' + err.message;
-        status.style.color = '#e74c3c';
-        uploadedImageUrl = '';
-      }
-    }
-
-    // =============================================
-    // КРОК 2: Відправка форми (додавання товару)
-    // =============================================
-    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const name  = document.getElementById('productName').value.trim();
-      const price = document.getElementById('productPrice').value;
-      const desc  = document.getElementById('productDesc').value.trim();
-      const btn   = document.getElementById('submitBtn');
-
-      btn.disabled = true;
-      btn.textContent = 'Збереження...';
-
-      try {
-        const res = await fetch('/api/admin/products', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name,
-            price,
-            description: desc,
-            image_url: uploadedImageUrl, // URL фото, яке вже на сервері
-          }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Помилка збереження');
-        }
-
-        // Показуємо повідомлення про успіх
-        toast('Товар успішно додано до каталогу!', 'success');
-
-        // Очищаємо форму
-        e.target.reset();
-        uploadedImageUrl = '';
-        document.getElementById('imagePreview').style.display = 'none';
-        document.getElementById('uploadStatus').textContent = '';
-        document.getElementById('uploadProgress').style.display = 'none';
-
-        // Оновлюємо список товарів
-        loadProducts();
-
-      } catch (err) {
-        toast(err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Додати товар';
-      }
-    });
-
-    // =============================================
-    // Завантаження і відображення списку товарів
-    // =============================================
-    async function loadProducts() {
-      const list = document.getElementById('productsList');
-      list.innerHTML = '<p class="products-empty">Завантаження...</p>';
-
-      try {
-        const res = await fetch('/api/products');
-        const products = await res.json();
-
-        if (products.length === 0) {
-          list.innerHTML = `<p class="products-empty">
-            ${icon('cake', 'empty-cake-icon')}
-            Товарів ще немає. Додайте перший!
-          </p>`;
-          return;
-        }
-
-        list.innerHTML = products.map(p => `
-          <div class="product-row" id="row-${p.id}">
-            <img
-              src="${p.image_url || 'https://placehold.co/64x64/f5e6d3/c9a84c?text=cake'}"
-              alt="${p.name}"
-              onerror="this.src='https://placehold.co/64x64/f5e6d3/c9a84c?text=cake'"
-            />
-            <div class="product-info">
-              <div class="product-name">${p.name}</div>
-              <div class="product-price">${p.price} грн</div>
-              ${p.description ? `<div class="product-desc">${p.description}</div>` : ''}
-            </div>
-            <button class="btn btn-red" onclick="deleteProduct(${p.id}, '${escapeHtml(p.name)}')">
-              ${icon('trash')} Видалити
-            </button>
+        <div class="toolbar">
+          <div class="toolbar-field">
+            <label for="productSearch">Пошук по товарах</label>
+            <input id="productSearch" type="search" placeholder="Назва або опис..." />
           </div>
-        `).join('');
+          <div class="toolbar-field">
+            <label for="productSort">Сортування</label>
+            <select id="productSort" class="toolbar-select">
+              <option value="newest">Спочатку новіші</option>
+              <option value="name_asc">Назва: А-Я</option>
+              <option value="name_desc">Назва: Я-А</option>
+              <option value="price_asc">Ціна: за зростанням</option>
+              <option value="price_desc">Ціна: за спаданням</option>
+            </select>
+          </div>
+          <div class="toolbar-actions">
+            <button type="button" class="ghost-btn" id="applyProductFiltersBtn">Застосувати</button>
+          </div>
+          <div class="toolbar-field">
+            <label for="productCount">Результат</label>
+            <input id="productCount" type="text" readonly value="0 товарів" />
+          </div>
+        </div>
 
-      } catch (err) {
-        list.innerHTML = `<p class="products-empty">Помилка: ${err.message}</p>`;
-      }
-    }
+        <div class="product-list" id="productsList">
+          <div class="empty-state">Завантаження каталогу...</div>
+        </div>
 
-    // =============================================
-    // Видалення товару
-    // =============================================
-    async function deleteProduct(id, name) {
-      const confirmed = await showConfirm({
-        title:       'Видалити товар?',
-        text:        `"${name}" буде видалено з каталогу. Цю дію не можна скасувати.`,
-        iconName:    'trash',
-        confirmText: 'Так, видалити',
-        cancelText:  'Скасувати',
-      });
-      if (!confirmed) return;
+        <div class="pagination">
+          <div class="pagination-info" id="productPageInfo">Сторінка 1 з 1</div>
+          <div class="pagination-actions">
+            <button type="button" class="pagination-btn" id="productPrevBtn">Назад</button>
+            <button type="button" class="pagination-btn" id="productNextBtn">Далі</button>
+          </div>
+        </div>
+      </section>
 
-      try {
-        const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
-        if (!res.ok) throw new Error('Помилка видалення');
+      <section class="card section-card">
+        <div class="card-head">
+          <h2>Замовлення клієнтів</h2>
+        </div>
 
-        toast(`"${name}" видалено`, 'success');
+        <div class="toolbar orders-toolbar">
+          <div class="toolbar-field">
+            <label for="orderSearch">Пошук по замовленнях</label>
+            <input id="orderSearch" type="search" placeholder="Номер, клієнт, телефон, email..." />
+          </div>
+          <div class="toolbar-field">
+            <label for="orderStatusFilter">Фільтр статусу</label>
+            <select id="orderStatusFilter" class="toolbar-select">
+              <option value="all">Усі статуси</option>
+              <option value="new">Нові</option>
+              <option value="confirmed">Підтверджені</option>
+              <option value="completed">Завершені</option>
+              <option value="cancelled">Скасовані</option>
+            </select>
+          </div>
+          <div class="toolbar-field">
+            <label for="orderSort">Сортування</label>
+            <select id="orderSort" class="toolbar-select">
+              <option value="newest">Спочатку новіші</option>
+              <option value="oldest">Спочатку старіші</option>
+              <option value="total_desc">Сума: від більшої</option>
+              <option value="total_asc">Сума: від меншої</option>
+              <option value="customer_asc">Клієнт: А-Я</option>
+              <option value="status_asc">Статус: А-Я</option>
+            </select>
+          </div>
+          <div class="toolbar-actions">
+            <button type="button" class="ghost-btn" id="applyOrderFiltersBtn">Застосувати</button>
+          </div>
+          <div class="toolbar-field">
+            <label for="orderCount">Результат</label>
+            <input id="orderCount" type="text" readonly value="0 замовлень" />
+          </div>
+        </div>
 
-        const row = document.getElementById(`row-${id}`);
-        if (row) {
-          row.style.opacity = '0';
-          row.style.transition = 'opacity 0.3s';
-          setTimeout(() => loadProducts(), 300);
-        }
+        <div class="orders-list" id="ordersList">
+          <div class="empty-state">Завантаження замовлень...</div>
+        </div>
 
-      } catch (err) {
-        toast('Помилка: ' + err.message, 'error');
-      }
-    }
+        <div class="pagination">
+          <div class="pagination-info" id="orderPageInfo">Сторінка 1 з 1</div>
+          <div class="pagination-actions">
+            <button type="button" class="pagination-btn" id="orderPrevBtn">Назад</button>
+            <button type="button" class="pagination-btn" id="orderNextBtn">Далі</button>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
 
-    // =============================================
-    // Допоміжні функції
-    // =============================================
-    function escapeHtml(str) {
-      return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-
-    // Завантажуємо товари при старті
-    loadProducts();
-  </script>
-
-  <!-- Порядок: icons.js → modal.js -->
   <script src="icons.js"></script>
+  <script src="security.js"></script>
   <script src="modal.js"></script>
-
+  <script src="admin.js"></script>
 </body>
 </html>

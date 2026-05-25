@@ -1,14 +1,7 @@
-// =============================================
-// Sugar & Glaze — Кастомні діалоги
-// toast(message, type)  — сповіщення знизу
-// showConfirm(message)  — підтвердження дії
-// =============================================
 
-// --- Ін'єкція стилів прямо з JS (щоб не додавати окремий CSS) ---
 (function injectStyles() {
   const style = document.createElement('style');
   style.textContent = `
-    /* ── Базові стилі SVG-іконок (клас .icon додається функцією icon()) ── */
     .icon {
       display: inline-block;
       width: 1em;
@@ -20,7 +13,6 @@
     .modal-icon .icon { width: 40px; height: 40px; }
     .toast-close .icon { width: 14px; height: 14px; opacity: 0.6; }
 
-    /* ── Контейнер тостів ── */
     #toast-container {
       position: fixed;
       bottom: 24px;
@@ -32,7 +24,6 @@
       pointer-events: none;
     }
 
-    /* ── Один тост ── */
     .toast {
       display: flex;
       align-items: flex-start;
@@ -60,7 +51,6 @@
       transform: translateX(20px);
     }
 
-    /* Типи тостів */
     .toast-error   { background: #fff0f0; border-left: 4px solid #e74c3c; color: #7b2020; }
     .toast-success { background: #f0fff5; border-left: 4px solid #27ae60; color: #1a5e35; }
     .toast-info    { background: #fdf8f0; border-left: 4px solid #c9a84c; color: #6b4c1a; }
@@ -75,7 +65,6 @@
     }
     .toast-close:hover { opacity: 0.8; }
 
-    /* ── Модальне вікно підтвердження ── */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -131,17 +120,13 @@
   `;
   document.head.appendChild(style);
 
-  // Контейнер для тостів
   const container = document.createElement('div');
   container.id = 'toast-container';
   document.body.appendChild(container);
 })();
 
-// =============================================
-// toast(message, type, duration)
-// type: 'error' | 'success' | 'info' | 'warn'
-// =============================================
 function toast(message, type = 'info', duration = 4000) {
+  const safeMessage = window.sgSecurity?.escapeHtml?.(message) || String(message ?? '');
   const svgIcons = {
     error:   icon('xCircle'),
     success: icon('checkCircle'),
@@ -153,19 +138,17 @@ function toast(message, type = 'info', duration = 4000) {
   el.className = `toast toast-${type}`;
   el.innerHTML = `
     <span class="toast-icon">${svgIcons[type] ?? icon('infoCircle')}</span>
-    <span class="toast-body">${message}</span>
+    <span class="toast-body">${safeMessage}</span>
     <button class="toast-close" aria-label="Закрити">${icon('close')}</button>
   `;
 
   const container = document.getElementById('toast-container');
   container.appendChild(el);
 
-  // Запускаємо анімацію появи
   requestAnimationFrame(() => {
     requestAnimationFrame(() => el.classList.add('show'));
   });
 
-  // Закрити по кліку або таймеру
   function dismiss() {
     el.classList.remove('show');
     el.classList.add('hide');
@@ -177,11 +160,6 @@ function toast(message, type = 'info', duration = 4000) {
   setTimeout(dismiss, duration);
 }
 
-// =============================================
-// showConfirm(options) → Promise<boolean>
-// options: { title, text, confirmText, cancelText }
-// Використання: if (await showConfirm({...})) { ... }
-// =============================================
 function showConfirm({
   title       = 'Ви впевнені?',
   text        = 'Цю дію не можна скасувати.',
@@ -190,16 +168,17 @@ function showConfirm({
   cancelText  = 'Скасувати',
 } = {}) {
   return new Promise((resolve) => {
+    const escape = window.sgSecurity?.escapeHtml || ((value) => String(value ?? ''));
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
       <div class="modal-box">
         <div class="modal-icon">${icon(iconName)}</div>
-        <div class="modal-title">${title}</div>
-        <div class="modal-text">${text}</div>
+        <div class="modal-title">${escape(title)}</div>
+        <div class="modal-text">${escape(text)}</div>
         <div class="modal-actions">
-          <button class="modal-btn modal-btn-cancel">${cancelText}</button>
-          <button class="modal-btn modal-btn-confirm">${confirmText}</button>
+          <button class="modal-btn modal-btn-cancel">${escape(cancelText)}</button>
+          <button class="modal-btn modal-btn-confirm">${escape(confirmText)}</button>
         </div>
       </div>
     `;
@@ -217,7 +196,6 @@ function showConfirm({
 
     overlay.querySelector('.modal-btn-cancel').addEventListener('click', () => close(false));
     overlay.querySelector('.modal-btn-confirm').addEventListener('click', () => close(true));
-    // Клік по затемненню = скасування
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(false); });
   });
 }
