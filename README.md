@@ -8,7 +8,8 @@ Node.js + Express storefront for ordering desserts with Supabase persistence, co
 - npm
 - Supabase project
 - Cloudinary account for admin image uploads
-- Gmail app password for order verification emails
+- Brevo transactional email API key for Render Free deployments
+- Gmail app password only for local SMTP fallback
 
 ## Local Setup
 
@@ -63,6 +64,7 @@ Recommended service settings:
 - Environment: copy the real values from `.env`, especially `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `APP_URL`, `CORS_ORIGIN`, Gmail, and Cloudinary variables.
 - Set `NODE_ENV=production`.
 - Optional for free Supabase projects: set `SUPABASE_MANAGEMENT_TOKEN` and `SUPABASE_PROJECT_REF` if you want the server to request project restore automatically when the project is paused and show per-service startup states in the storefront modal. Keep this token server-only.
+- Recommended email setup on Render Free: set `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, and `BREVO_SENDER_NAME`. Render Free blocks outbound SMTP ports, so Gmail/Nodemailer is kept only as a local fallback. Keep `ORDER_NOTIFICATIONS_EMAIL=qwertyqwe1571@gmail.com` if order notifications should still arrive to that Gmail inbox.
 
 Set `APP_URL` to the deployed Render URL after the first deployment.
 

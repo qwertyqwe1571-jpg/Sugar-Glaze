@@ -9,6 +9,7 @@ const cors = require('cors');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const nodemailer = require('nodemailer');
+const { createEmailTransport } = require('./lib/email-delivery');
 const { applySecurityHeaders, buildCorsOptions } = require('./lib/http-security');
 const { normalizeProductPayload } = require('./lib/product-validation');
 const {
@@ -81,16 +82,7 @@ if (cloudinaryConfigured) {
   });
 }
 
-const mailer = isConfiguredValue(process.env.GMAIL_USER, ['your.email@gmail.com']) &&
-  isConfiguredValue(process.env.GMAIL_APP_PASSWORD, ['abcdabcdabcdabcd'])
-  ? nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD,
-      },
-    })
-  : null;
+const mailer = createEmailTransport(process.env, { nodemailerImpl: nodemailer });
 
 
 function roundMoney(value) {
@@ -1523,5 +1515,5 @@ startupCleanupTimer.unref?.();
 app.listen(PORT, () => {
   console.log(`✅ Sugar & Glaze: http://localhost:${PORT}`);
   console.log(`🛠️  Адмін: http://localhost:${PORT}/admin.html`);
-  console.log(mailer ? '📧 Email підтвердження увімкнено' : '📧 Email підтвердження вимкнено');
+  console.log(mailer ? `📧 Email підтвердження увімкнено (${mailer.provider || 'smtp'})` : '📧 Email підтвердження вимкнено');
 });
