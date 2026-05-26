@@ -439,10 +439,20 @@ function changeCatalogPage(delta) {
   renderCatalogProducts();
 }
 
-function addToCart(id, name, price) {
+function addToCart(id, name, price, imageUrl = '') {
   invalidatePendingOrderVerification('Склад замовлення змінено. Надішліть новий код.');
   const existing = cart.find(item => item.id === id);
-  existing ? existing.qty++ : cart.push({ id, name, price, qty: 1 });
+  const safeImageUrl = normalizeSafeImageUrl?.(imageUrl) || '';
+
+  if (existing) {
+    existing.qty++;
+    if (!existing.imageUrl && safeImageUrl) {
+      existing.imageUrl = safeImageUrl;
+    }
+  } else {
+    cart.push({ id, name, price, imageUrl: safeImageUrl, qty: 1 });
+  }
+
   updateCartUI();
   openCart();
 }
@@ -451,7 +461,12 @@ function addProductToCart(productId) {
   const product = productsCache.find(item => Number(item.id) === Number(productId));
   if (!product) return;
 
-  addToCart(Number(product.id), String(product.name || ''), Number(product.price));
+  addToCart(
+    Number(product.id),
+    String(product.name || ''),
+    Number(product.price),
+    String(product.image_url || '')
+  );
 }
 
 function removeFromCart(id) {
@@ -478,10 +493,21 @@ function updateCartUI() {
   if (cart.length === 0) {
     cartItemsEl.innerHTML = `<p class="cart-empty">${icon('cart', 'cart-empty-icon')}Кошик порожній</p>`;
   } else {
-    cartItemsEl.innerHTML = cart.map(item => `
+    cartItemsEl.innerHTML = cart.map(item => {
+      const safeImageUrl = normalizeSafeImageUrl?.(item.imageUrl) || '';
+      const safeName = escapeHtml(item.name);
+
+      return `
       <div class="cart-item">
+        <div class="cart-item-media">
+          ${safeImageUrl
+            ? `<img class="cart-item-img" src="${escapeAttribute(safeImageUrl)}" alt="${safeName}"/>
+               <div class="cart-item-placeholder" style="display:none">${illustration('cupcake')}</div>`
+            : `<div class="cart-item-placeholder">${illustration('cupcake')}</div>`
+          }
+        </div>
         <div class="cart-item-info">
-          <div class="cart-item-name">${escapeHtml(item.name)}</div>
+          <div class="cart-item-name">${safeName}</div>
           <div class="cart-item-price">${escapeHtml(item.price)} грн × ${escapeHtml(item.qty)}</div>
         </div>
         <div class="cart-item-controls">
@@ -490,7 +516,15 @@ function updateCartUI() {
           <button class="qty-btn" type="button" data-cart-inc="${escapeAttribute(item.id)}">+</button>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
+
+    cartItemsEl.querySelectorAll('.cart-item-img').forEach((image) => {
+      image.addEventListener('error', () => {
+        image.style.display = 'none';
+        image.nextElementSibling?.style?.setProperty('display', 'grid');
+      });
+    });
   }
 
   document.getElementById('cartTotal').textContent = getTotal();
