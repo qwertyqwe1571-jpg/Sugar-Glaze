@@ -13,6 +13,25 @@ const accountPanel = document.getElementById('accountPanel');
 const authMessage = document.getElementById('authMessage');
 const adminLock = document.getElementById('adminLock');
 
+const validationFields = {
+  login: {
+    email: 'loginEmail',
+    password: 'loginPassword',
+  },
+  register: {
+    name: 'registerName',
+    email: 'registerEmail',
+    phone: 'registerPhone',
+    address: 'registerAddress',
+    password: 'registerPassword',
+  },
+  profile: {
+    name: 'profileName',
+    phone: 'profilePhone',
+    address: 'profileAddress',
+  },
+};
+
 initPageMode();
 wireTabs();
 wireForms();
@@ -71,6 +90,8 @@ function setActiveTab(tab) {
   loginPanel.classList.toggle('active', tab === 'login');
   registerPanel.classList.toggle('active', tab === 'register');
   clearMessage();
+  clearValidation('login');
+  clearValidation('register');
 }
 
 function wireForms() {
@@ -78,6 +99,11 @@ function wireForms() {
   document.getElementById('registerForm').addEventListener('submit', handleRegister);
   document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
   document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+  document.querySelectorAll('#loginForm input, #registerForm input, #registerForm textarea, #profileForm input, #profileForm textarea')
+    .forEach(control => {
+      control.addEventListener('input', () => clearFieldValidation(control));
+    });
 }
 
 async function loadSession() {
@@ -140,6 +166,7 @@ function clearAccountPanel() {
 async function handleLogin(event) {
   event.preventDefault();
   clearMessage();
+  clearValidation('login');
 
   const button = document.getElementById('loginSubmit');
   button.disabled = true;
@@ -157,7 +184,7 @@ async function handleLogin(event) {
     });
 
     const data = await readApiResponse(response);
-    if (!response.ok) throw new Error(data.error || 'Не вдалося увійти');
+    if (!response.ok) throw createApiError(data, 'Не вдалося увійти');
 
     authUser = data.user;
     showMessage('Вхід виконано успішно.', 'success');
@@ -168,7 +195,7 @@ async function handleLogin(event) {
       window.location.href = redirectTarget;
     }
   } catch (error) {
-    showMessage(error.message, 'error');
+    showApiError(error, 'login');
   } finally {
     button.disabled = false;
     button.textContent = 'Увійти';
@@ -178,6 +205,7 @@ async function handleLogin(event) {
 async function handleRegister(event) {
   event.preventDefault();
   clearMessage();
+  clearValidation('register');
 
   const button = document.getElementById('registerSubmit');
   button.disabled = true;
@@ -197,7 +225,7 @@ async function handleRegister(event) {
     });
 
     const data = await readApiResponse(response);
-    if (!response.ok) throw new Error(data.error || 'Не вдалося створити акаунт');
+    if (!response.ok) throw createApiError(data, 'Не вдалося створити акаунт');
 
     authUser = data.user;
     showMessage('Акаунт створено. Тепер можна оформлювати замовлення.', 'success');
@@ -208,7 +236,7 @@ async function handleRegister(event) {
       window.location.href = redirectTarget;
     }
   } catch (error) {
-    showMessage(error.message, 'error');
+    showApiError(error, 'register');
   } finally {
     button.disabled = false;
     button.textContent = 'Створити акаунт';
@@ -218,6 +246,7 @@ async function handleRegister(event) {
 async function handleProfileUpdate(event) {
   event.preventDefault();
   clearMessage();
+  clearValidation('profile');
 
   const button = document.getElementById('profileSubmit');
   button.disabled = true;
@@ -235,13 +264,13 @@ async function handleProfileUpdate(event) {
     });
 
     const data = await readApiResponse(response);
-    if (!response.ok) throw new Error(data.error || 'Не вдалося оновити профіль');
+    if (!response.ok) throw createApiError(data, 'Не вдалося оновити профіль');
 
     authUser = data.user;
     renderState();
     showMessage('Профіль оновлено.', 'success');
   } catch (error) {
-    showMessage(error.message, 'error');
+    showApiError(error, 'profile');
   } finally {
     button.disabled = false;
     button.textContent = 'Оновити профіль';
@@ -287,12 +316,110 @@ function resolveRedirectTarget(user) {
   return '/account.html';
 }
 
+function createApiError(data, fallbackMessage) {
+  const error = new Error(data?.error || fallbackMessage);
+  error.validationErrors = normalizeValidationErrors(data?.errors);
+  return error;
+}
+
+function normalizeValidationErrors(errors) {
+  if (!Array.isArray(errors)) return [];
+
+  return errors
+    .map(error => ({
+      field: String(error?.field || '').trim(),
+      message: String(error?.message || '').trim(),
+    }))
+    .filter(error => error.field && error.message);
+}
+
+function showApiError(error, formName) {
+  const errors = normalizeValidationErrors(error.validationErrors);
+  renderValidationErrors(formName, errors);
+
+  if (errors.length) {
+    showMessage(errors.map(item => item.message), 'error');
+    return;
+  }
+
+  showMessage(error.message, 'error');
+}
+
+function renderValidationErrors(formName, errors) {
+  const fields = validationFields[formName] || {};
+
+  errors.forEach(({ field, message }) => {
+    const control = document.getElementById(fields[field]);
+    if (!control) return;
+    setFieldValidation(control, message);
+  });
+}
+
+function setFieldValidation(control, message) {
+  const field = control.closest('.field');
+  if (!field) return;
+
+  field.classList.add('invalid');
+  control.classList.add('invalid');
+  control.setAttribute('aria-invalid', 'true');
+
+  let feedback = field.querySelector('.field-error');
+  if (!feedback) {
+    feedback = document.createElement('div');
+    feedback.className = 'field-error';
+    feedback.id = `${control.id}Error`;
+    field.appendChild(feedback);
+  }
+
+  feedback.textContent = message;
+  control.setAttribute('aria-describedby', feedback.id);
+}
+
+function clearValidation(formName) {
+  const fields = validationFields[formName] || {};
+
+  Object.values(fields).forEach(id => {
+    const control = document.getElementById(id);
+    if (control) clearFieldValidation(control);
+  });
+}
+
+function clearFieldValidation(control) {
+  const field = control.closest('.field');
+  if (!field) return;
+
+  control.classList.remove('invalid');
+  control.removeAttribute('aria-invalid');
+  control.removeAttribute('aria-describedby');
+  field.classList.remove('invalid');
+
+  const feedback = field.querySelector('.field-error');
+  if (feedback) feedback.remove();
+}
+
 function showMessage(message, type = 'info') {
-  authMessage.textContent = message;
+  authMessage.replaceChildren();
+
+  const messages = Array.isArray(message)
+    ? [...new Set(message.filter(Boolean))]
+    : [message].filter(Boolean);
+
+  if (messages.length > 1) {
+    const list = document.createElement('ul');
+    messages.forEach(item => {
+      const listItem = document.createElement('li');
+      listItem.textContent = item;
+      list.appendChild(listItem);
+    });
+    authMessage.appendChild(list);
+  } else {
+    authMessage.textContent = messages[0] || '';
+  }
+
   authMessage.className = `message show ${type}`;
 }
 
 function clearMessage() {
-  authMessage.textContent = '';
+  authMessage.replaceChildren();
   authMessage.className = 'message';
 }

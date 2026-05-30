@@ -310,6 +310,23 @@ button {
   transform: translateY(-1px);
 }
 
+.field.invalid label {
+  color: #9a4335;
+}
+
+.field input.invalid,
+.field textarea.invalid {
+  border-color: rgba(191, 61, 47, 0.78);
+  background: rgba(255, 246, 244, 0.96);
+  box-shadow: 0 0 0 4px rgba(191, 61, 47, 0.1);
+}
+
+.field-error {
+  color: #9a4335;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
 .submit-btn,
 .secondary-btn {
   min-height: 54px;
@@ -373,6 +390,15 @@ button {
 
 .message.show {
   display: block;
+}
+
+.message ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.message li + li {
+  margin-top: 4px;
 }
 
 .message.success {

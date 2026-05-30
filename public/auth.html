@@ -31,32 +31,32 @@
       </div>
 
       <div class="admin-lock" id="adminLock"></div>
-      <div class="message" id="authMessage"></div>
+      <div class="message" id="authMessage" aria-live="polite"></div>
 
       <div id="authForms">
         <div class="form-panel active" id="loginPanel">
-          <form id="loginForm">
+          <form id="loginForm" novalidate>
             <div class="field">
               <label for="loginEmail">Email</label>
-              <input id="loginEmail" name="email" type="email" placeholder="name@example.com" required />
+              <input id="loginEmail" name="email" type="email" placeholder="name@example.com" />
             </div>
             <div class="field">
               <label for="loginPassword">Пароль</label>
-              <input id="loginPassword" name="password" type="password" placeholder="Ваш пароль" required />
+              <input id="loginPassword" name="password" type="password" placeholder="Ваш пароль" />
             </div>
             <button type="submit" class="submit-btn" id="loginSubmit">Увійти</button>
           </form>
         </div>
 
         <div class="form-panel" id="registerPanel">
-          <form id="registerForm">
+          <form id="registerForm" novalidate>
             <div class="field">
               <label for="registerName">Ім'я та прізвище</label>
-              <input id="registerName" name="name" type="text" placeholder="Наприклад: Анна Коваль" required />
+              <input id="registerName" name="name" type="text" placeholder="Наприклад: Анна Коваль" />
             </div>
             <div class="field">
               <label for="registerEmail">Email</label>
-              <input id="registerEmail" name="email" type="email" placeholder="name@example.com" required />
+              <input id="registerEmail" name="email" type="email" placeholder="name@example.com" />
             </div>
             <div class="field">
               <label for="registerPhone">Телефон</label>
@@ -68,7 +68,7 @@
             </div>
             <div class="field">
               <label for="registerPassword">Пароль</label>
-              <input id="registerPassword" name="password" type="password" placeholder="Мінімум 8 символів" required />
+              <input id="registerPassword" name="password" type="password" placeholder="Мінімум 8 символів" />
             </div>
             <button type="submit" class="submit-btn" id="registerSubmit">Створити акаунт</button>
           </form>
@@ -85,10 +85,10 @@
           </div>
         </div>
 
-        <form id="profileForm">
+        <form id="profileForm" novalidate>
           <div class="field">
             <label for="profileName">Ім'я</label>
-            <input id="profileName" name="name" type="text" required />
+            <input id="profileName" name="name" type="text" />
           </div>
           <div class="field">
             <label for="profilePhone">Телефон</label>

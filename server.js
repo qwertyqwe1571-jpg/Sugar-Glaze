@@ -13,6 +13,11 @@ const { createEmailTransport } = require('./lib/email-delivery');
 const { applySecurityHeaders, buildCorsOptions } = require('./lib/http-security');
 const { normalizeProductPayload } = require('./lib/product-validation');
 const {
+  validateLoginInput,
+  validateProfileInput,
+  validateRegistrationInput,
+} = require('./lib/auth-validation');
+const {
   createSupabaseServiceHealthRequester,
   createSupabaseRestoreRequester,
   createSupabaseWakeHandler,
@@ -108,6 +113,13 @@ function normalizePhone(value) {
 
 function trimText(value) {
   return String(value ?? '').trim();
+}
+
+function sendValidationErrors(res, errors, status = 400, fallbackMessage = 'Перевірте введені дані.') {
+  return res.status(status).json({
+    error: fallbackMessage,
+    errors,
+  });
 }
 
 function isCloudinaryImageUrl(value) {
@@ -964,24 +976,16 @@ app.get('/api/auth/me', (req, res) => {
 });
 
 app.post('/api/auth/register', registerRateLimiter, async (req, res) => {
-  const name = trimText(req.body.name);
-  const email = normalizeEmail(req.body.email);
-  const password = String(req.body.password || '');
-  const phone = normalizePhone(req.body.phone) || null;
-  const address = trimText(req.body.address) || null;
+  const { payload, errors } = validateRegistrationInput(req.body);
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: "Вкажіть ім'я, email і пароль." });
-  }
-
-  if (password.length < 8) {
-    return res.status(400).json({ error: 'Пароль має містити щонайменше 8 символів.' });
+  if (errors.length) {
+    return sendValidationErrors(res, errors);
   }
 
   const { data: existingUser, error: selectError } = await supabase
     .from('users')
     .select('id')
-    .eq('email', email)
+    .eq('email', payload.email)
     .maybeSingle();
 
   if (selectError) {
@@ -989,17 +993,22 @@ app.post('/api/auth/register', registerRateLimiter, async (req, res) => {
   }
 
   if (existingUser) {
-    return res.status(409).json({ error: 'Користувач із таким email уже існує.' });
+    return sendValidationErrors(
+      res,
+      [{ field: 'email', message: 'Користувач із таким email уже існує.' }],
+      409,
+      'Користувач із таким email уже існує.'
+    );
   }
 
-  const { salt, hash } = hashPassword(password);
+  const { salt, hash } = hashPassword(payload.password);
   const { data: createdUser, error: insertError } = await supabase
     .from('users')
     .insert([{
-      full_name: name,
-      email,
-      phone,
-      address,
+      full_name: payload.name,
+      email: payload.email,
+      phone: payload.phone,
+      address: payload.address,
       role: 'customer',
       password_hash: hash,
       password_salt: salt,
@@ -1025,22 +1034,29 @@ app.post('/api/auth/register', registerRateLimiter, async (req, res) => {
 });
 
 app.post('/api/auth/login', loginRateLimiter, async (req, res) => {
-  const email = normalizeEmail(req.body.email);
-  const password = String(req.body.password || '');
+  const { payload, errors } = validateLoginInput(req.body);
   const adminOnly = req.body.admin === true || req.body.admin === 'true';
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Вкажіть email і пароль.' });
+  if (errors.length) {
+    return sendValidationErrors(res, errors);
   }
 
   const { data: user, error } = await supabase
     .from('users')
     .select('id, full_name, email, phone, address, role, password_hash, password_salt')
-    .eq('email', email)
+    .eq('email', payload.email)
     .maybeSingle();
 
-  if (error || !user || !verifyPassword(password, user.password_salt, user.password_hash)) {
-    return res.status(401).json({ error: 'Невірний email або пароль.' });
+  if (error || !user || !verifyPassword(payload.password, user.password_salt, user.password_hash)) {
+    return sendValidationErrors(
+      res,
+      [
+        { field: 'email', message: 'Невірний email або пароль.' },
+        { field: 'password', message: 'Невірний email або пароль.' },
+      ],
+      401,
+      'Невірний email або пароль.'
+    );
   }
 
   if (adminOnly && user.role !== 'admin') {
@@ -1072,20 +1088,18 @@ app.post('/api/auth/logout', async (req, res) => {
 });
 
 app.patch('/api/auth/profile', requireAuth, async (req, res) => {
-  const name = trimText(req.body.name);
-  const phone = normalizePhone(req.body.phone) || null;
-  const address = trimText(req.body.address) || null;
+  const { payload, errors } = validateProfileInput(req.body);
 
-  if (!name) {
-    return res.status(400).json({ error: "Ім'я не може бути порожнім." });
+  if (errors.length) {
+    return sendValidationErrors(res, errors);
   }
 
   const { data: updatedUser, error } = await supabase
     .from('users')
     .update({
-      full_name: name,
-      phone,
-      address,
+      full_name: payload.name,
+      phone: payload.phone,
+      address: payload.address,
     })
     .eq('id', req.currentUser.id)
     .select('id, full_name, email, phone, address, role')
